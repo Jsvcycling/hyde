@@ -13,7 +13,7 @@ var rootCommand = &cobra.Command{
 	Short: "Hyde is a lightweight, static page generator written in Go.",
 }
 
-func init() {
+func Run() {
 	rootCommand.AddCommand(genCommand)
 	rootCommand.AddCommand(newCommand)
 	rootCommand.AddCommand(serveCommand)
