@@ -7,12 +7,16 @@ package parser
 import (
 	"errors"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/microcosm-cc/bluemonday"
 )
 
 var (
-	CantReadFile      = errors.New("Cannot open file")
+	CantOpenFile      = errors.New("Cannot open file")
+	CantReadFile      = errors.New("Cannot read file")
 	CantParseMetadata = errors.New("Cannot parse metadata")
 )
 
@@ -28,7 +32,7 @@ func ParsePage(filename string) *PageOutput {
 	var parser pageParser
 
 	if err != nil {
-		return &PageOutput{Name: filename, Error: CantReadFile}
+		return &PageOutput{Name: filename, Error: CantOpenFile}
 	}
 
 	switch guessTypeByExt(filename) {
@@ -92,7 +96,19 @@ func (parser creoleParser) fromBuffer(buf io.Reader, output *PageOutput) {
 type htmlParser struct{}
 
 func (parser htmlParser) fromBuffer(buf io.Reader, output *PageOutput) {
-	// TODO: Do we really need to do anything?
+	output.Params = parseMetadata(buf)
+
+	data, err := ioutil.ReadAll(buf)
+
+	if err != nil {
+		// Clear params if we hit an error
+		output.Params = nil
+		output.Error = CantReadFile
+		return
+	}
+
+	// Don't use SanitizeReader cause we can't catch read errors
+	output.Content = string(bluemonday.UGCPolicy().SanitizeBytes(data))
 }
 
 // Textile Parser
