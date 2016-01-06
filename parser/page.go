@@ -12,7 +12,8 @@ import (
 )
 
 var (
-	CantReadFile = errors.New("Cannot open file")
+	CantReadFile      = errors.New("Cannot open file")
+	CantParseMetadata = errors.New("Cannot parse metadata")
 )
 
 type PageOutput struct {
@@ -43,7 +44,13 @@ func ParsePage(filename string) *PageOutput {
 		parser = htmlParser{}
 	}
 
-	return parser.fromBuffer(file)
+	var output PageOutput
+
+	output.Name = filename[:strings.LastIndex(filename, ".")]
+
+	parser.fromBuffer(file, &output)
+
+	return &output
 }
 
 func guessTypeByExt(filename string) string {
@@ -64,50 +71,40 @@ func guessTypeByExt(filename string) string {
 }
 
 type pageParser interface {
-	fromBuffer(buf io.Reader) *PageOutput
+	fromBuffer(buf io.Reader, output *PageOutput)
 }
 
 // AsciiDoc Parser
 type asciiDocParser struct{}
 
-func (parser asciiDocParser) fromBuffer(buf io.Reader) *PageOutput {
-	// TODO
-
-	return nil
+func (parser asciiDocParser) fromBuffer(buf io.Reader, output *PageOutput) {
+	// TODO: Add AsciiDoc support.
 }
 
 // Creole Parser
 type creoleParser struct{}
 
-func (parser creoleParser) fromBuffer(buf io.Reader) *PageOutput {
-	// TODO
-
-	return nil
+func (parser creoleParser) fromBuffer(buf io.Reader, output *PageOutput) {
+	// TODO: Add Creole support.
 }
 
 // HTML Parser
 type htmlParser struct{}
 
-func (parser htmlParser) fromBuffer(buf io.Reader) *PageOutput {
-	// TODO
-
-	return nil
+func (parser htmlParser) fromBuffer(buf io.Reader, output *PageOutput) {
+	// TODO: Do we really need to do anything?
 }
 
 // Textile Parser
 type textileParser struct{}
 
-func (parser textileParser) fromBuffer(buf io.Reader) *PageOutput {
-	// TODO
-
-	return nil
+func (parser textileParser) fromBuffer(buf io.Reader, output *PageOutput) {
+	// TODO: Add Textile support.
 }
 
 // Markdown Parser
 type markdownParser struct{}
 
-func (parser markdownParser) fromBuffer(buf io.Reader) *PageOutput {
-	// TODO
-
-	return nil
+func (parser markdownParser) fromBuffer(buf io.Reader, output *PageOutput) {
+	// TODO: Add Markdown support.
 }
