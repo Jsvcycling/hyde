@@ -10,7 +10,7 @@ import (
 
 var genCommand = &cobra.Command{
 	Use:     "gen",
-	Aliases: []string{"generate"},
+	Aliases: []string{"generate", "compile"},
 	Short:   "Generate a set of HTML files to be served statically by a web server.",
 	Run:     runGenCommand,
 }

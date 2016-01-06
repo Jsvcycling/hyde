@@ -11,7 +11,11 @@ import (
 
 // TODO: Write custom Markdown parser based on CommonMark spec.
 
-func ParseBytes(data string) string {
+func ParseMarkdownFile(filename string) {
+	// TODO
+}
+
+func parseMarkdown(data string) string {
 	unsafe := blackfriday.MarkdownCommon([]byte(data))
 	return bluemonday.UGCPolicy().Sanitize(string(unsafe))
 }

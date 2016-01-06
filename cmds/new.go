@@ -9,9 +9,10 @@ import (
 )
 
 var newCommand = &cobra.Command{
-	Use:   "new [name]",
-	Short: "Generate a new Hyde site.",
-	Run:   runNewCommand,
+	Use:     "new [name]",
+	Aliases: []string{"create"},
+	Short:   "Generate a new Hyde site.",
+	Run:     runNewCommand,
 }
 
 func runNewCommand(cmd *cobra.Command, args []string) {
