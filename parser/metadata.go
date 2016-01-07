@@ -33,7 +33,7 @@ type PageMetadata struct {
 	Date        string `toml:"date"`
 }
 
-func parseMetadata(buf io.Reader) (*PageMetadata, error) {
+func parseMetadata(buf io.Reader, output *PageMetadata) error {
 	var config PageMetadata
 	reader := bufio.NewReader(buf)
 
@@ -41,7 +41,7 @@ func parseMetadata(buf io.Reader) (*PageMetadata, error) {
 	line, err := reader.ReadString('\n')
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if line == TOML_METADATA_START {
@@ -53,14 +53,14 @@ func parseMetadata(buf io.Reader) (*PageMetadata, error) {
 				data += str
 				data += "\n"
 			} else if err != nil {
-				return nil, err
+				return err
 			} else {
 				break
 			}
 		}
 
 		if _, err := toml.Decode(data, &config); err != nil {
-			return nil, err
+			return err
 		}
 	} else if line == YAML_METADATA_START {
 		var data string
@@ -71,24 +71,25 @@ func parseMetadata(buf io.Reader) (*PageMetadata, error) {
 				data += str
 				data += "\n"
 			} else if err != nil {
-				return nil, err
+				return err
 			} else {
 				break
 			}
 		}
 
 		if err := yaml.Unmarshal([]byte(data), &config); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
 	if config.Title == "" {
-		return nil, ErrorMissingTitle
+		return ErrorMissingTitle
 	} else if config.Description == "" {
-		return nil, ErrorMissingDescription
+		return ErrorMissingDescription
 	} else if config.Date == "" {
-		return nil, ErrorMissingDate
+		return ErrorMissingDate
 	}
 
-	return &config, nil
+	output = &config
+	return nil
 }

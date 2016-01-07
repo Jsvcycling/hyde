@@ -21,10 +21,10 @@ var (
 )
 
 type PageOutput struct {
-	Name    string
-	Params  PageMetadata
-	Content string
-	Error   error
+	Name     string
+	Metadata PageMetadata
+	Content  string
+	Error    error
 }
 
 func ParsePage(filename string) *PageOutput {
@@ -97,10 +97,14 @@ type htmlParser struct{}
 
 func (parser htmlParser) fromBuffer(buf io.Reader, output *PageOutput) {
 	var data []byte
+	var err error
 
-	params, err := parseMetadata(buf)
+	err = parseMetadata(buf, &output.Metadata)
 
-	output.Params = *params
+	if err != nil {
+		output.Error = err
+		return
+	}
 
 	data, err = ioutil.ReadAll(buf)
 
