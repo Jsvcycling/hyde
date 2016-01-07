@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/m4tty/cajun"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday"
 )
@@ -90,7 +91,26 @@ func (parser asciiDocParser) fromBuffer(buf io.Reader, output *PageOutput) {
 type creoleParser struct{}
 
 func (parser creoleParser) fromBuffer(buf io.Reader, output *PageOutput) {
-	// TODO: Add Creole support.
+	if err := parseMetadata(buf, &output.Metadata); err != nil {
+		output.Error = err
+		return
+	}
+
+	data, err := ioutil.ReadAll(buf)
+
+	if err != nil {
+		output.Error = err
+		return
+	}
+
+	content, err := cajun.Transform(string(data))
+
+	if err != nil {
+		output.Error = err
+		return
+	}
+
+	output.Content = bluemonday.UGCPolicy().Sanitize(content)
 }
 
 // HTML Parser
