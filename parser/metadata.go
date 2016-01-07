@@ -10,6 +10,7 @@ import (
 	"io"
 
 	"github.com/BurntSushi/toml"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -51,6 +52,8 @@ func parseMetadata(buf io.Reader) (*PageMetadata, error) {
 			if str, err := reader.ReadString('\n'); err == nil && str != TOML_METADATA_END {
 				data += str
 				data += "\n"
+			} else if err != nil {
+				return nil, err
 			} else {
 				break
 			}
@@ -60,7 +63,23 @@ func parseMetadata(buf io.Reader) (*PageMetadata, error) {
 			return nil, err
 		}
 	} else if line == YAML_METADATA_START {
-		// TODO: add YAML support
+		var data string
+
+		// Read each metadata line until the metadata section ends
+		for {
+			if str, err := reader.ReadString('\n'); err == nil && str != YAML_METADATA_END {
+				data += str
+				data += "\n"
+			} else if err != nil {
+				return nil, err
+			} else {
+				break
+			}
+		}
+
+		if err := yaml.Unmarshal([]byte(data), &config); err != nil {
+			return nil, err
+		}
 	}
 
 	if config.Title == "" {
