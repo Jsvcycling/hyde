@@ -9,7 +9,9 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/m4tty/cajun"
 	"github.com/microcosm-cc/bluemonday"
@@ -17,10 +19,7 @@ import (
 )
 
 var (
-	ErrorCantOpenFile      = errors.New("Cannot open file")
-	ErrorCantReadFile      = errors.New("Cannot read file")
-	ErrorCantParseMetadata = errors.New("Cannot parse metadata")
-	ErrorNotImplemented    = errors.New("Not implemented")
+	ErrorNotImplemented = errors.New("Not implemented")
 )
 
 type PageOutput struct {
@@ -35,7 +34,7 @@ func ParsePage(filename string) *PageOutput {
 	var parser pageParser
 
 	if err != nil {
-		return &PageOutput{Name: filename, Error: ErrorCantOpenFile}
+		return &PageOutput{Name: filename, Error: err}
 	}
 
 	switch guessTypeByExt(filename) {
@@ -58,6 +57,48 @@ func ParsePage(filename string) *PageOutput {
 	parser.fromBuffer(file, &output)
 
 	return &output
+}
+
+func (page *PageOutput) Generate(filename string, targetDir string, production bool) error {
+	path, err := filepath.Abs(targetDir + "/" + filename)
+
+	if err != nil {
+		return err
+	}
+
+	outfile, err := os.Create(path)
+
+	if err != nil {
+		return err
+	}
+
+	tmplFile, err := os.Open("templates/" + page.Metadata.Template)
+
+	if err != nil {
+		return err
+	}
+
+	tmplData, err := ioutil.ReadAll(tmplFile)
+
+	if err != nil {
+		return err
+	}
+
+	tmpl := template.New(page.Metadata.Template)
+	tmpl, err = tmpl.Parse(string(tmplData))
+
+	err = tmpl.Execute(outfile, page)
+
+	if err != nil {
+		return err
+	}
+
+	// TODO: Sanitize template with BlueMonday.
+
+	tmplFile.Close()
+	outfile.Close()
+
+	return nil
 }
 
 func guessTypeByExt(filename string) string {
