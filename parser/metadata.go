@@ -25,12 +25,14 @@ var (
 	ErrorMissingTitle       = errors.New("Missing title")
 	ErrorMissingDescription = errors.New("Missing description")
 	ErrorMissingDate        = errors.New("Missing date")
+	ErrorMissingTemplate    = errors.New("Missing template")
 )
 
 type PageMetadata struct {
-	Title       string `toml:"title"`
-	Description string `toml:"description"`
-	Date        string `toml:"date"`
+	Title       string
+	Description string
+	Date        string
+	Template    string
 }
 
 func parseMetadata(buf io.Reader, output *PageMetadata) error {
@@ -88,6 +90,8 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 		return ErrorMissingDescription
 	} else if config.Date == "" {
 		return ErrorMissingDate
+	} else if config.Template == "" {
+		return ErrorMissingTemplate
 	}
 
 	output = &config
