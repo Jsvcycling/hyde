@@ -22,7 +22,7 @@ var (
 
 type PageOutput struct {
 	Name    string
-	Params  map[string]string
+	Params  PageMetadata
 	Content string
 	Error   error
 }
@@ -96,13 +96,15 @@ func (parser creoleParser) fromBuffer(buf io.Reader, output *PageOutput) {
 type htmlParser struct{}
 
 func (parser htmlParser) fromBuffer(buf io.Reader, output *PageOutput) {
-	output.Params = parseMetadata(buf)
+	var data []byte
 
-	data, err := ioutil.ReadAll(buf)
+	params, err := parseMetadata(buf)
+
+	output.Params = *params
+
+	data, err = ioutil.ReadAll(buf)
 
 	if err != nil {
-		// Clear params if we hit an error
-		output.Params = nil
 		output.Error = CantReadFile
 		return
 	}
