@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/russross/blackfriday"
 )
 
 var (
@@ -97,19 +98,19 @@ type htmlParser struct{}
 
 func (parser htmlParser) fromBuffer(buf io.Reader, output *PageOutput) {
 	var data []byte
-	var err error
 
-	err = parseMetadata(buf, &output.Metadata)
+	err := parseMetadata(buf, &output.Metadata)
 
 	if err != nil {
 		output.Error = err
 		return
 	}
 
+	// Does this read from the cursors current location?
 	data, err = ioutil.ReadAll(buf)
 
 	if err != nil {
-		output.Error = CantReadFile
+		output.Error = err
 		return
 	}
 
@@ -128,5 +129,22 @@ func (parser textileParser) fromBuffer(buf io.Reader, output *PageOutput) {
 type markdownParser struct{}
 
 func (parser markdownParser) fromBuffer(buf io.Reader, output *PageOutput) {
-	// TODO: Add Markdown support.
+	var data []byte
+
+	err := parseMetadata(buf, &output.Metadata)
+
+	if err != nil {
+		output.Error = err
+		return
+	}
+
+	// Does this read from the cursors current location?
+	data, err = ioutil.ReadAll(buf)
+
+	if err != nil {
+		output.Error = err
+		return
+	}
+
+	output.Content = string(bluemonday.UGCPolicy().SanitizeBytes(blackfriday.MarkdownCommon(data)))
 }
