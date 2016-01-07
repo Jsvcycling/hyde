@@ -59,6 +59,7 @@ func ParsePage(filename string) *PageOutput {
 	return &output
 }
 
+// TODO: If production is true, minify the generated file.
 func (page *PageOutput) Generate(filename string, targetDir string, production bool) error {
 	path, err := filepath.Abs(targetDir + "/" + filename)
 
