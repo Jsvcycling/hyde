@@ -17,9 +17,10 @@ import (
 )
 
 var (
-	CantOpenFile      = errors.New("Cannot open file")
-	CantReadFile      = errors.New("Cannot read file")
-	CantParseMetadata = errors.New("Cannot parse metadata")
+	ErrorCantOpenFile      = errors.New("Cannot open file")
+	ErrorCantReadFile      = errors.New("Cannot read file")
+	ErrorCantParseMetadata = errors.New("Cannot parse metadata")
+	ErrorNotImplemented    = errors.New("Not implemented")
 )
 
 type PageOutput struct {
@@ -34,7 +35,7 @@ func ParsePage(filename string) *PageOutput {
 	var parser pageParser
 
 	if err != nil {
-		return &PageOutput{Name: filename, Error: CantOpenFile}
+		return &PageOutput{Name: filename, Error: ErrorCantOpenFile}
 	}
 
 	switch guessTypeByExt(filename) {
@@ -85,6 +86,7 @@ type asciiDocParser struct{}
 
 func (parser asciiDocParser) fromBuffer(buf io.Reader, output *PageOutput) {
 	// TODO: Add AsciiDoc support.
+	output.Error = ErrorNotImplemented
 }
 
 // Creole Parser
@@ -143,6 +145,7 @@ type textileParser struct{}
 
 func (parser textileParser) fromBuffer(buf io.Reader, output *PageOutput) {
 	// TODO: Add Textile support.
+	output.Error = ErrorNotImplemented
 }
 
 // Markdown Parser
