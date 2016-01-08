@@ -14,7 +14,7 @@ var rootCommand = &cobra.Command{
 }
 
 func Run() {
-	rootCommand.AddCommand(genCommand)
+	rootCommand.AddCommand(buildCommand)
 	rootCommand.AddCommand(newCommand)
 	rootCommand.AddCommand(serveCommand)
 }
