@@ -15,6 +15,9 @@ import (
 	"github.com/m4tty/cajun"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday"
+
+	"github.com/tdewolff/minify"
+	"github.com/tdewolff/minify/html"
 )
 
 var (
@@ -59,8 +62,7 @@ func ParsePage(filename string) *PageOutput {
 	return &output
 }
 
-// TODO: Add support for minification
-func (page *PageOutput) GeneratePage(targetDir string, minify bool) error {
+func (page *PageOutput) GeneratePage(targetDir string, doMinify bool) error {
 	path, err := filepath.Abs(targetDir + "/" + page.Name + ".html")
 
 	if err != nil {
@@ -101,6 +103,20 @@ func (page *PageOutput) GeneratePage(targetDir string, minify bool) error {
 	tmplData = strings.Replace(tmplData, "{{description}}", page.Metadata.Description, -1)
 	tmplData = strings.Replace(tmplData, "{{date}}", page.Metadata.Date.String(), -1)
 	tmplData = strings.Replace(tmplData, "{{content}}", page.Content, -1)
+
+	if doMinify {
+		mini := minify.New()
+		mini.AddFunc("text/html", html.Minify)
+
+		// Does this minify inline Javascript & CSS?
+		miniData, err := mini.String("text/html", tmplData)
+
+		if err != nil {
+			return err
+		}
+
+		tmplData = miniData
+	}
 
 	// Resanitize our HTML (just in case)
 	tmplData = bluemonday.UGCPolicy().Sanitize(tmplData)
