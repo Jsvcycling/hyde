@@ -12,7 +12,7 @@ import (
 var ServeCmd = cli.Command{
 	Name:            "serve",
 	Aliases:         []string{"s"},
-	Usage:           "hyde serve -- Serve the current site on a development server",
+	Usage:           "serve the current site on a development server",
 	SkipFlagParsing: true,
 	Action:          doServe,
 }

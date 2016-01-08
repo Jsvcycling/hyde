@@ -14,6 +14,9 @@ import (
 
 func main() {
 	app := cli.NewApp()
+	app.Name = "hyde"
+	app.Usage = "a lightweight static site generator"
+	app.Version = "0.0.1 ALPHA"
 	app.Commands = []cli.Command{
 		cmds.BuildCmd,
 		cmds.GenCmd,

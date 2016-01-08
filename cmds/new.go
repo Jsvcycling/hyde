@@ -12,7 +12,7 @@ import (
 var NewCmd = cli.Command{
 	Name:            "new",
 	Aliases:         []string{"n"},
-	Usage:           "hyde new <name> - Creates a new Hyde site",
+	Usage:           "creates a new Hyde site",
 	SkipFlagParsing: true,
 	Action:          doNew,
 }

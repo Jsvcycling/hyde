@@ -12,7 +12,7 @@ import (
 var BuildCmd = cli.Command{
 	Name:            "build",
 	Aliases:         []string{"b"},
-	Usage:           "hyde build -- Build and compile the site",
+	Usage:           "build and compile the site",
 	SkipFlagParsing: true,
 	Action:          doBuild,
 }

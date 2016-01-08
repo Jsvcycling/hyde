@@ -12,7 +12,7 @@ import (
 var GenCmd = cli.Command{
 	Name:            "generate",
 	Aliases:         []string{"g"},
-	Usage:           "hyde generate <type> <name> - Generate a new resource for the current site",
+	Usage:           "generate a new resource for the current site",
 	SkipFlagParsing: true,
 	Action:          doGen,
 }
