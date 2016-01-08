@@ -8,17 +8,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var port int
-
+// TODO: Add flag handling
 var serveCommand = &cobra.Command{
-	Use:     "serve [port]",
-	Aliases: []string{"server"},
-	Short:   "Use Hyde to serve your website (not recommended for production).",
-	Run:     runServeCommand,
-}
-
-func init() {
-	serveCommand.Flags().IntVarP(&port, "port", "p", 3000, "The port to use")
+	Use:   "serve [port]",
+	Short: "Use Hyde to serve your website (not recommended for production).",
+	Run:   runServeCommand,
 }
 
 func runServeCommand(cmd *cobra.Command, args []string) {
