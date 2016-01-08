@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
 
 	"github.com/m4tty/cajun"
 	"github.com/microcosm-cc/bluemonday"
@@ -20,6 +19,7 @@ import (
 
 var (
 	ErrorNotImplemented = errors.New("Not implemented")
+	ErrorBadWrite       = errors.New("Unable to write to output file")
 )
 
 type PageOutput struct {
@@ -59,45 +59,60 @@ func ParsePage(filename string) *PageOutput {
 	return &output
 }
 
-// TODO: If production is true, minify the generated file.
-func (page *PageOutput) Generate(filename string, targetDir string, production bool) error {
-	path, err := filepath.Abs(targetDir + "/" + filename)
+// TODO: Add support for minification
+func (page *PageOutput) GeneratePage(targetDir string, minify bool) error {
+	path, err := filepath.Abs(targetDir + "/" + page.Name + ".html")
 
 	if err != nil {
 		return err
 	}
 
-	outfile, err := os.Create(path)
+	outFile, err := os.Create(path)
+	defer outFile.Close()
 
 	if err != nil {
 		return err
 	}
 
-	tmplFile, err := os.Open("templates/" + page.Metadata.Template)
+	tmplPath, err := filepath.Abs("templates/" + page.Metadata.Template + ".html")
 
 	if err != nil {
 		return err
 	}
 
-	tmplData, err := ioutil.ReadAll(tmplFile)
+	tmplFile, err := os.Open(tmplPath)
+	defer tmplFile.Close()
 
 	if err != nil {
 		return err
 	}
 
-	tmpl := template.New(page.Metadata.Template)
-	tmpl, err = tmpl.Parse(string(tmplData))
-
-	err = tmpl.Execute(outfile, page)
+	tmplBytes, err := ioutil.ReadAll(tmplFile)
 
 	if err != nil {
 		return err
 	}
 
-	// TODO: Sanitize template with BlueMonday.
+	tmplData := string(tmplBytes)
 
-	tmplFile.Close()
-	outfile.Close()
+	// Embed page information into the template.
+	tmplData = strings.Replace(tmplData, "{{title}}", page.Metadata.Title, -1)
+	tmplData = strings.Replace(tmplData, "{{author}}", page.Metadata.Author, -1)
+	tmplData = strings.Replace(tmplData, "{{description}}", page.Metadata.Description, -1)
+	tmplData = strings.Replace(tmplData, "{{date}}", page.Metadata.Date.String(), -1)
+	tmplData = strings.Replace(tmplData, "{{content}}", page.Content, -1)
+
+	// Resanitize our HTML (just in case)
+	tmplData = bluemonday.UGCPolicy().Sanitize(tmplData)
+
+	chars, err := outFile.WriteString(tmplData)
+
+	if err != nil {
+		return err
+	} else if chars != len(tmplData) {
+		// Make sure we write the entire template
+		return ErrorBadWrite
+	}
 
 	return nil
 }
