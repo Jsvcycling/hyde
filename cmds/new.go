@@ -5,16 +5,18 @@
 package cmds
 
 import (
-	"github.com/spf13/cobra"
+	"github.com/codegangsta/cli"
 )
 
 // TODO: Add flag handling
-var newCommand = &cobra.Command{
-	Use:   "new [name]",
-	Short: "Generate a new Hyde site.",
-	Run:   runNewCommand,
+var NewCmd = cli.Command{
+	Name:            "new",
+	Aliases:         []string{"n"},
+	Usage:           "hyde new <name> - Creates a new Hyde site",
+	SkipFlagParsing: true,
+	Action:          doNew,
 }
 
-func runNewCommand(cmd *cobra.Command, args []string) {
+func doNew(ctx *cli.Context) {
 	// TODO
 }

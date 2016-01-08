@@ -5,16 +5,18 @@
 package cmds
 
 import (
-	"github.com/spf13/cobra"
+	"github.com/codegangsta/cli"
 )
 
 // TODO: Add flag handling
-var serveCommand = &cobra.Command{
-	Use:   "serve [port]",
-	Short: "Use Hyde to serve your website (not recommended for production).",
-	Run:   runServeCommand,
+var ServeCmd = cli.Command{
+	Name:            "serve",
+	Aliases:         []string{"s"},
+	Usage:           "hyde serve -- Serve the current site on a development server",
+	SkipFlagParsing: true,
+	Action:          doServe,
 }
 
-func runServeCommand(cmd *cobra.Command, args []string) {
+func doServe(ctx *cli.Context) {
 	// TODO
 }

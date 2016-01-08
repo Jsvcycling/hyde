@@ -5,16 +5,18 @@
 package cmds
 
 import (
-	"github.com/spf13/cobra"
+	"github.com/codegangsta/cli"
 )
 
 // TODO: Add flag handling
-var buildCommand = &cobra.Command{
-	Use:   "build",
-	Short: "Build a set of HTML files to be served statically by a web server.",
-	Run:   runBuildCommand,
+var BuildCmd = cli.Command{
+	Name:            "build",
+	Aliases:         []string{"b"},
+	Usage:           "hyde build -- Build and compile the site",
+	SkipFlagParsing: true,
+	Action:          doBuild,
 }
 
-func runBuildCommand(cmd *cobra.Command, args []string) {
+func doBuild(ctx *cli.Context) {
 	// TODO
 }

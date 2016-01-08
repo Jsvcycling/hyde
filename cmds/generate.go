@@ -5,16 +5,18 @@
 package cmds
 
 import (
-	"github.com/spf13/cobra"
+	"github.com/codegangsta/cli"
 )
 
 // TODO: Add flag handling
-var generateCommand = &cobra.Command{
-	Use:   "generate [type] [name]",
-	Short: "Generate a new typed resource integrated it properly.",
-	Run:   runGenerateCommand,
+var GenCmd = cli.Command{
+	Name:            "generate",
+	Aliases:         []string{"g"},
+	Usage:           "hyde generate <type> <name> - Generate a new resource for the current site",
+	SkipFlagParsing: true,
+	Action:          doGen,
 }
 
-func runGenerateCommand(cmd *cobra.Command, args []string) {
+func doGen(ctx *cli.Context) {
 	// TODO
 }

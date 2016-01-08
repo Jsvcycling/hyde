@@ -5,9 +5,21 @@
 package main
 
 import (
+	"os"
+
+	"github.com/codegangsta/cli"
+
 	"github.com/jsvcycling/hyde/cmds"
 )
 
 func main() {
-	cmds.Run()
+	app := cli.NewApp()
+	app.Commands = []cli.Command{
+		cmds.BuildCmd,
+		cmds.GenCmd,
+		cmds.NewCmd,
+		cmds.ServeCmd,
+	}
+
+	app.Run(os.Args)
 }
