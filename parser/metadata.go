@@ -11,15 +11,11 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"gopkg.in/yaml.v2"
 )
 
 const (
-	TOML_METADATA_START = "+++"
-	TOML_METADATA_END   = "+++"
-
-	YAML_METADATA_START = "---"
-	YAML_METADATA_END   = "---"
+	METADATA_START = "+++"
+	METADATA_END   = "+++"
 )
 
 var (
@@ -50,12 +46,12 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 		return err
 	}
 
-	if line == TOML_METADATA_START {
+	if line == METADATA_START {
 		var data string
 
 		// Read each metadata line until the metadata section ends
 		for {
-			if str, err := reader.ReadString('\n'); err == nil && str != TOML_METADATA_END {
+			if str, err := reader.ReadString('\n'); err == nil && str != METADATA_END {
 				data += str
 				data += "\n"
 			} else if err != nil {
@@ -66,24 +62,6 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 		}
 
 		if _, err := toml.Decode(data, &config); err != nil {
-			return err
-		}
-	} else if line == YAML_METADATA_START {
-		var data string
-
-		// Read each metadata line until the metadata section ends
-		for {
-			if str, err := reader.ReadString('\n'); err == nil && str != YAML_METADATA_END {
-				data += str
-				data += "\n"
-			} else if err != nil {
-				return err
-			} else {
-				break
-			}
-		}
-
-		if err := yaml.Unmarshal([]byte(data), &config); err != nil {
 			return err
 		}
 	}
