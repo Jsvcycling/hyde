@@ -4,5 +4,5 @@
  */
 package templates
 
-var HydeTOML string = `
+var HydeTOML string = `port = 3000
 `

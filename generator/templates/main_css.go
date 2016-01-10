@@ -4,6 +4,7 @@
  */
 package templates
 
-var MainCSS string = `
-
+var MainCSS string = `body {
+    font-family: san-serif;
+}
 `
