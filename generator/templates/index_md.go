@@ -4,5 +4,8 @@
  */
 package templates
 
-var IndexMD string = `# Hello World!
+var IndexMD string = `+++
+title = "Hello World"
++++
+# Hello World!
 `

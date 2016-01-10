@@ -5,8 +5,29 @@
 package cmds
 
 import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+
 	"github.com/codegangsta/cli"
+
+	"github.com/jsvcycling/hyde/parser"
 )
+
+var (
+	workingDir string
+)
+
+func init() {
+	// Figure out the current working directory
+	var err error
+	workingDir, err = os.Getwd()
+
+	if err != nil {
+		panic(err)
+	}
+}
 
 // TODO: Add flag handling
 var BuildCmd = cli.Command{
@@ -18,5 +39,49 @@ var BuildCmd = cli.Command{
 }
 
 func doBuild(ctx *cli.Context) {
-	// TODO
+	if _, err := os.Stat(path.Join(workingDir, "hyde.toml")); os.IsNotExist(err) {
+		fmt.Println("Hyde project not found")
+		return
+	}
+
+	// Make sure the pages directory exists
+	if _, err := os.Stat(path.Join(workingDir, "pages")); os.IsNotExist(err) {
+		fmt.Println("Invalid Hyde project")
+		return
+	}
+
+	// Make sure the templates directory exists
+	if _, err := os.Stat(path.Join(workingDir, "templates")); os.IsNotExist(err) {
+		fmt.Println("Invalid Hyde project")
+		return
+	}
+
+	config := parser.ParseConfig(path.Join(workingDir, "hyde.toml"))
+
+	if config.Error != nil {
+		fmt.Println(config.Error.Error())
+		return
+	}
+
+	// Get all the pages in the pages directory
+	pages, err := ioutil.ReadDir(path.Join(workingDir, "pages"))
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, page := range pages {
+		pageData := parser.ParsePage(path.Join(workingDir, "pages", page.Name()))
+
+		if pageData.Error != nil {
+			fmt.Println(pageData.Error.Error())
+			return
+		}
+
+		if err := pageData.GeneratePage(config.TargetDir, config.Minify); err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+	}
 }

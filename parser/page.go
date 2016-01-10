@@ -9,7 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 
 	"github.com/m4tty/cajun"
@@ -63,24 +63,22 @@ func ParsePage(filename string) *PageOutput {
 }
 
 func (page *PageOutput) GeneratePage(targetDir string, doMinify bool) error {
-	path, err := filepath.Abs(targetDir + "/" + page.Name + ".html")
+	workingDir, err := os.Getwd()
 
 	if err != nil {
 		return err
 	}
 
-	outFile, err := os.Create(path)
+	outPath := path.Join(workingDir, targetDir, page.Name+".html")
+
+	outFile, err := os.Create(outPath)
 	defer outFile.Close()
 
 	if err != nil {
 		return err
 	}
 
-	tmplPath, err := filepath.Abs("templates/" + page.Metadata.Template + ".html")
-
-	if err != nil {
-		return err
-	}
+	tmplPath := path.Join(workingDir, targetDir, "templates", page.Metadata.Template+".html")
 
 	tmplFile, err := os.Open(tmplPath)
 	defer tmplFile.Close()

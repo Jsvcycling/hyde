@@ -7,6 +7,7 @@ package parser
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"time"
 
@@ -50,6 +51,7 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 		var data string
 
 		// Read each metadata line until the metadata section ends
+		// FIXME: This doesn't work...
 		for {
 			if str, err := reader.ReadString('\n'); err == nil && str != METADATA_END {
 				data += str
@@ -65,6 +67,8 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 			return err
 		}
 	}
+
+	fmt.Println(config)
 
 	if config.Title == "" {
 		return ErrorMissingTitle

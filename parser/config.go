@@ -11,25 +11,31 @@ import (
 )
 
 type ConfigData struct {
-	Port  int
-	Error error
+	TargetDir string
+	Port      int
+	Minify    bool
+	Error     error
 }
 
-func ParseConfig(filename string) *ConfigData {
-	var config *ConfigData
+func ParseConfig(filename string) ConfigData {
+	var config ConfigData
 	file, err := os.Open(filename)
 	defer file.Close()
 
 	if err != nil {
-		return &ConfigData{Error: err}
+		return ConfigData{Error: err}
 	}
 
-	if _, err = toml.DecodeReader(file, config); err != nil {
-		return &ConfigData{Error: err}
+	if _, err = toml.DecodeReader(file, &config); err != nil {
+		return ConfigData{Error: err}
 	}
 
 	if config.Port == 0 {
 		config.Port = 3000
+	}
+
+	if config.TargetDir == "" {
+		config.TargetDir = "build"
 	}
 
 	return config
