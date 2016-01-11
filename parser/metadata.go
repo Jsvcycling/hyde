@@ -7,9 +7,7 @@ package parser
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
-	"time"
 
 	"github.com/BurntSushi/toml"
 )
@@ -23,16 +21,15 @@ var (
 	ErrorMissingTitle       = errors.New("Missing title")
 	ErrorMissingAuthor      = errors.New("Missing author")
 	ErrorMissingDescription = errors.New("Missing description")
-	ErrorMissingDate        = errors.New("Missing date")
 	ErrorMissingTemplate    = errors.New("Missing template")
+	ErrorNoMetadata         = errors.New("Couldn't find metadata")
 )
 
 // TODO: Make certain fields optional
 type PageMetadata struct {
-	Title       string
+	Title       string `toml:"title"`
 	Author      string
 	Description string
-	Date        time.Time
 	Template    string
 }
 
@@ -47,15 +44,13 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 		return err
 	}
 
-	if line == METADATA_START {
+	if line[:len(line)-1] == METADATA_START {
 		var data string
 
 		// Read each metadata line until the metadata section ends
-		// FIXME: This doesn't work...
 		for {
-			if str, err := reader.ReadString('\n'); err == nil && str != METADATA_END {
+			if str, err := reader.ReadString('\n'); err == nil && str[:len(str)-1] != METADATA_END {
 				data += str
-				data += "\n"
 			} else if err != nil {
 				return err
 			} else {
@@ -63,12 +58,14 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 			}
 		}
 
-		if _, err := toml.Decode(data, &config); err != nil {
+		_, err := toml.Decode(data, &config)
+
+		if err != nil {
 			return err
 		}
+	} else {
+		return ErrorNoMetadata
 	}
-
-	fmt.Println(config)
 
 	if config.Title == "" {
 		return ErrorMissingTitle
@@ -76,8 +73,6 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 		return ErrorMissingAuthor
 	} else if config.Description == "" {
 		return ErrorMissingDescription
-	} else if config.Date.IsZero() {
-		return ErrorMissingDate
 	} else if config.Template == "" {
 		return ErrorMissingTemplate
 	}

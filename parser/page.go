@@ -99,7 +99,6 @@ func (page *PageOutput) GeneratePage(targetDir string, doMinify bool) error {
 	tmplData = strings.Replace(tmplData, "{{title}}", page.Metadata.Title, -1)
 	tmplData = strings.Replace(tmplData, "{{author}}", page.Metadata.Author, -1)
 	tmplData = strings.Replace(tmplData, "{{description}}", page.Metadata.Description, -1)
-	tmplData = strings.Replace(tmplData, "{{date}}", page.Metadata.Date.String(), -1)
 	tmplData = strings.Replace(tmplData, "{{content}}", page.Content, -1)
 
 	if doMinify {

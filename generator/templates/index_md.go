@@ -6,6 +6,9 @@ package templates
 
 var IndexMD string = `+++
 title = "Hello World"
+author = "The Hyde Team"
+description = "This site was generated using Hyde"
+template = "template"
 +++
 # Hello World!
 `
