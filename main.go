@@ -22,6 +22,7 @@ func main() {
 		cmds.GenCmd,
 		cmds.NewCmd,
 		cmds.ServeCmd,
+		cmds.CleanCmd,
 	}
 
 	app.Run(os.Args)
