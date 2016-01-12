@@ -12,6 +12,7 @@ import (
 
 	"github.com/codegangsta/cli"
 
+	"github.com/jsvcycling/hyde/helpers"
 	"github.com/jsvcycling/hyde/parser"
 )
 
@@ -39,24 +40,23 @@ var BuildCmd = cli.Command{
 }
 
 func doBuild(ctx *cli.Context) {
-	if _, err := os.Stat(path.Join(workingDir, "hyde.toml")); os.IsNotExist(err) {
+	if _, err := os.Stat("hyde.toml"); os.IsNotExist(err) {
 		fmt.Println("Hyde project not found")
 		return
 	}
 
 	// Make sure the pages directory exists
-	if _, err := os.Stat(path.Join(workingDir, "pages")); os.IsNotExist(err) {
+	if _, err := os.Stat("pages"); os.IsNotExist(err) {
 		fmt.Println("Invalid Hyde project")
 		return
 	}
 
 	// Make sure the templates directory exists
-	if _, err := os.Stat(path.Join(workingDir, "templates")); os.IsNotExist(err) {
+	if _, err := os.Stat("templates"); os.IsNotExist(err) {
 		fmt.Println("Invalid Hyde project")
 		return
 	}
 
-	// config := parser.ParseConfig(path.Join(workingDir, "hyde.toml"))
 	config := parser.ParseConfig("hyde.toml")
 
 	if config.Error != nil {
@@ -85,7 +85,6 @@ func doBuild(ctx *cli.Context) {
 	}
 
 	for _, page := range pages {
-		// pageData := parser.ParsePage(path.Join(workingDir, "pages", page.Name()))
 		pageData := parser.ParsePage("pages", page.Name())
 
 		if pageData.Error != nil {
@@ -98,4 +97,7 @@ func doBuild(ctx *cli.Context) {
 			return
 		}
 	}
+
+	// Copy the contents of the public directory directly to the output.
+	helpers.CopyDir("public", path.Join(config.TargetDir, "public"))
 }
