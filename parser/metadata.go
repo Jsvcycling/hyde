@@ -33,7 +33,7 @@ type PageMetadata struct {
 	Template    string
 }
 
-func parseMetadata(buf io.Reader, output *PageMetadata) error {
+func parseMetadata(buf io.Reader) (PageMetadata, error) {
 	var config PageMetadata
 	reader := bufio.NewReader(buf)
 
@@ -41,7 +41,7 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 	line, err := reader.ReadString('\n')
 
 	if err != nil {
-		return err
+		return PageMetadata{}, err
 	}
 
 	if line[:len(line)-1] == METADATA_START {
@@ -52,7 +52,7 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 			if str, err := reader.ReadString('\n'); err == nil && str[:len(str)-1] != METADATA_END {
 				data += str
 			} else if err != nil {
-				return err
+				return PageMetadata{}, err
 			} else {
 				break
 			}
@@ -61,22 +61,21 @@ func parseMetadata(buf io.Reader, output *PageMetadata) error {
 		_, err := toml.Decode(data, &config)
 
 		if err != nil {
-			return err
+			return PageMetadata{}, err
 		}
 	} else {
-		return ErrorNoMetadata
+		return PageMetadata{}, ErrorNoMetadata
 	}
 
 	if config.Title == "" {
-		return ErrorMissingTitle
+		return PageMetadata{}, ErrorMissingTitle
 	} else if config.Author == "" {
-		return ErrorMissingAuthor
+		return PageMetadata{}, ErrorMissingAuthor
 	} else if config.Description == "" {
-		return ErrorMissingDescription
+		return PageMetadata{}, ErrorMissingDescription
 	} else if config.Template == "" {
-		return ErrorMissingTemplate
+		return PageMetadata{}, ErrorMissingTemplate
 	}
 
-	output = &config
-	return nil
+	return config, nil
 }

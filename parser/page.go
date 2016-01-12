@@ -5,6 +5,7 @@
 package parser
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io"
@@ -63,13 +64,7 @@ func ParsePage(directory, filename string) *PageOutput {
 	return &output
 }
 
-func (page *PageOutput) GeneratePage(targetDir string, doMinify bool) error {
-	// workingDir, err := os.Getwd()
-	//
-	// if err != nil {
-	// 	return err
-	// }
-
+func (page PageOutput) GeneratePage(targetDir string, doMinify bool) error {
 	outPath := path.Join(targetDir, page.Name+".html")
 
 	outFile, err := os.Create(outPath)
@@ -79,11 +74,7 @@ func (page *PageOutput) GeneratePage(targetDir string, doMinify bool) error {
 		return err
 	}
 
-	// tmplPath := path.Join(workingDir, targetDir, "templates", page.Metadata.Template+".html")
-	fmt.Println(page.Metadata.Template)
-	tmplPath := path.Join("templates", page.Metadata.Template+".html")
-
-	tmplFile, err := os.Open(tmplPath)
+	tmplFile, err := os.Open(path.Join("templates", page.Metadata.Template+".html"))
 	defer tmplFile.Close()
 
 	if err != nil {
@@ -119,7 +110,7 @@ func (page *PageOutput) GeneratePage(targetDir string, doMinify bool) error {
 	}
 
 	// Resanitize our HTML (just in case)
-	tmplData = bluemonday.UGCPolicy().Sanitize(tmplData)
+	// tmplData = bluemonday.UGCPolicy().Sanitize(tmplData)
 
 	chars, err := outFile.WriteString(tmplData)
 
@@ -166,10 +157,14 @@ func (parser asciiDocParser) fromBuffer(buf io.Reader, output *PageOutput) {
 type creoleParser struct{}
 
 func (parser creoleParser) fromBuffer(buf io.Reader, output *PageOutput) {
-	if err := parseMetadata(buf, &output.Metadata); err != nil {
+	metadata, err := parseMetadata(buf)
+
+	if err != nil {
 		output.Error = err
 		return
 	}
+
+	output.Metadata = metadata
 
 	data, err := ioutil.ReadAll(buf)
 
@@ -194,12 +189,14 @@ type htmlParser struct{}
 func (parser htmlParser) fromBuffer(buf io.Reader, output *PageOutput) {
 	var data []byte
 
-	err := parseMetadata(buf, &output.Metadata)
+	metadata, err := parseMetadata(buf)
 
 	if err != nil {
 		output.Error = err
 		return
 	}
+
+	output.Metadata = metadata
 
 	// Does this read from the cursors current location?
 	data, err = ioutil.ReadAll(buf)
@@ -225,22 +222,43 @@ func (parser textileParser) fromBuffer(buf io.Reader, output *PageOutput) {
 type markdownParser struct{}
 
 func (parser markdownParser) fromBuffer(buf io.Reader, output *PageOutput) {
-	var data []byte
+	data := ""
 
-	err := parseMetadata(buf, &output.Metadata)
+	metadata, err := parseMetadata(buf)
 
 	if err != nil {
 		output.Error = err
 		return
 	}
+
+	output.Metadata = metadata
+
+	fmt.Println(metadata)
 
 	// Does this read from the cursors current location?
-	data, err = ioutil.ReadAll(buf)
+	// data, err := ioutil.ReadAll(buf)
 
-	if err != nil {
-		output.Error = err
-		return
+	file := bufio.NewReader(buf)
+
+	for {
+		if line, err := file.ReadString('\n'); err != io.EOF {
+			data += line
+			fmt.Println(line)
+		} else {
+			break
+		}
 	}
 
-	output.Content = string(bluemonday.UGCPolicy().SanitizeBytes(blackfriday.MarkdownCommon(data)))
+	fmt.Println(data)
+
+	// if err != nil {
+	// 	output.Error = err
+	// 	return
+	// }
+
+	// output.Content = string(bluemonday.UGCPolicy().SanitizeBytes(blackfriday.MarkdownCommon(data)))
+	outdata := string(blackfriday.MarkdownCommon([]byte(data)))
+	output.Content = outdata
+
+	fmt.Println(outdata)
 }

@@ -10,7 +10,6 @@ var TemplateHTML string = `<!DOCTYPE html>
         <meta charset="utf-8">
         <meta name="author" content="{{author}}">
         <meta name="description" content="{{description}}">
-        <meta name="keywords" content="{{keywords}}">
         <meta name="generator" content="Hyde by Jsvcycling (github.com/jsvcycling/hyde)">
 
         <title>{{title}}</title>
