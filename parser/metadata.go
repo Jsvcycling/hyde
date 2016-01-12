@@ -27,7 +27,7 @@ var (
 
 // TODO: Make certain fields optional
 type PageMetadata struct {
-	Title       string `toml:"title"`
+	Title       string
 	Author      string
 	Description string
 	Template    string

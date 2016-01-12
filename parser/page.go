@@ -6,6 +6,7 @@ package parser
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -32,8 +33,8 @@ type PageOutput struct {
 	Error    error
 }
 
-func ParsePage(filename string) *PageOutput {
-	file, err := os.Open(filename)
+func ParsePage(directory, filename string) *PageOutput {
+	file, err := os.Open(path.Join(directory, filename))
 	var parser pageParser
 
 	if err != nil {
@@ -63,13 +64,13 @@ func ParsePage(filename string) *PageOutput {
 }
 
 func (page *PageOutput) GeneratePage(targetDir string, doMinify bool) error {
-	workingDir, err := os.Getwd()
+	// workingDir, err := os.Getwd()
+	//
+	// if err != nil {
+	// 	return err
+	// }
 
-	if err != nil {
-		return err
-	}
-
-	outPath := path.Join(workingDir, targetDir, page.Name+".html")
+	outPath := path.Join(targetDir, page.Name+".html")
 
 	outFile, err := os.Create(outPath)
 	defer outFile.Close()
@@ -78,7 +79,9 @@ func (page *PageOutput) GeneratePage(targetDir string, doMinify bool) error {
 		return err
 	}
 
-	tmplPath := path.Join(workingDir, targetDir, "templates", page.Metadata.Template+".html")
+	// tmplPath := path.Join(workingDir, targetDir, "templates", page.Metadata.Template+".html")
+	fmt.Println(page.Metadata.Template)
+	tmplPath := path.Join("templates", page.Metadata.Template+".html")
 
 	tmplFile, err := os.Open(tmplPath)
 	defer tmplFile.Close()

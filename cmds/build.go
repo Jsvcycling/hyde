@@ -56,11 +56,16 @@ func doBuild(ctx *cli.Context) {
 		return
 	}
 
-	config := parser.ParseConfig(path.Join(workingDir, "hyde.toml"))
+	// config := parser.ParseConfig(path.Join(workingDir, "hyde.toml"))
+	config := parser.ParseConfig("hyde.toml")
 
 	if config.Error != nil {
 		fmt.Println(config.Error.Error())
 		return
+	}
+
+	if err := os.Mkdir(config.TargetDir, os.ModeDir); err != nil {
+		fmt.Println(err.Error())
 	}
 
 	// Get all the pages in the pages directory
@@ -72,7 +77,8 @@ func doBuild(ctx *cli.Context) {
 	}
 
 	for _, page := range pages {
-		pageData := parser.ParsePage(path.Join(workingDir, "pages", page.Name()))
+		// pageData := parser.ParsePage(path.Join(workingDir, "pages", page.Name()))
+		pageData := parser.ParsePage("pages", page.Name())
 
 		if pageData.Error != nil {
 			fmt.Println(pageData.Error.Error())
