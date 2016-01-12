@@ -64,8 +64,17 @@ func doBuild(ctx *cli.Context) {
 		return
 	}
 
-	if err := os.Mkdir(config.TargetDir, os.ModeDir); err != nil {
-		fmt.Println(err.Error())
+	// If the target directory exists, delete it and recreate it otherwise just
+	// create it.
+	// FIXME: This produced an un-deletable directory (under Win8.1).
+	if _, err := os.Stat(path.Join(workingDir, "pages")); os.IsNotExist(err) {
+		if err := os.Mkdir(config.TargetDir, os.ModeDir); err != nil {
+			fmt.Println(err.Error())
+		}
+	} else {
+		if err := os.RemoveAll(config.TargetDir); err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 
 	// Get all the pages in the pages directory
